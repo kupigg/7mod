@@ -1,0 +1,323 @@
+version: '3.8'
+
+services:
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.4.0
+    hostname: zookeeper
+    container_name: zookeeper
+    ports:
+      - "2181:2181"
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    networks:
+      kafka_net:
+        aliases:
+          - zookeeper
+
+  kafka1:
+    image: confluentinc/cp-kafka:7.4.0
+    hostname: kafka1
+    container_name: kafka1
+    depends_on:
+      - zookeeper
+    ports:
+      - "19092:19092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_JMX_PORT: 9991
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka1:9092,EXTERNAL://localhost:19092
+      KAFKA_LISTENERS: INTERNAL://0.0.0.0:9092,EXTERNAL://0.0.0.0:19092
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 3
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+    networks:
+      kafka_net:
+        aliases:
+          - kafka1
+
+  kafka2:
+    image: confluentinc/cp-kafka:7.4.0
+    hostname: kafka2
+    container_name: kafka2
+    depends_on:
+      - zookeeper
+    ports:
+      - "19093:19093"
+    environment:
+      KAFKA_BROKER_ID: 2
+      KAFKA_JMX_PORT: 9991
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka2:9092,EXTERNAL://localhost:19093
+      KAFKA_LISTENERS: INTERNAL://0.0.0.0:9092,EXTERNAL://0.0.0.0:19093
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+    networks:
+      kafka_net:
+        aliases:
+          - kafka2
+
+  kafka3:
+    image: confluentinc/cp-kafka:7.4.0
+    hostname: kafka3
+    container_name: kafka3
+    depends_on:
+      - zookeeper
+    ports:
+      - "19094:19094"
+    environment:
+      KAFKA_BROKER_ID: 3
+      KAFKA_JMX_PORT: 9991
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka3:9092,EXTERNAL://localhost:19094
+      KAFKA_LISTENERS: INTERNAL://0.0.0.0:9092,EXTERNAL://0.0.0.0:19094
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+    networks:
+      kafka_net:
+        aliases:
+          - kafka3
+  zookeeper_mirror:
+    image: confluentinc/cp-zookeeper:7.4.0
+    hostname: zookeeper_mirror
+    container_name: zookeeper_mirror
+    depends_on:
+      - zookeeper
+    ports:
+      - "2182:2182"
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2182
+      ZOOKEEPER_TICK_TIME: 2001
+    networks:
+      kafka_net:
+        aliases:
+          - zookeeper
+
+  kafka_mirror1:
+    image: confluentinc/cp-kafka:7.4.0
+    hostname: kafka_mirror1
+    container_name: kafka_mirror1
+    depends_on:
+      - zookeeper_mirror
+    ports:
+      - "19095:19095"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2182
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka_mirror1:9095,EXTERNAL://localhost:19095
+      KAFKA_LISTENERS: INTERNAL://0.0.0.0:9095,EXTERNAL://0.0.0.0:19095
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 3
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+    networks:
+      kafka_net:
+        aliases:
+          - kafka_mirror1
+
+  kafka_mirror2:
+    image: confluentinc/cp-kafka:7.4.0
+    hostname: kafka_mirror2
+    container_name: kafka_mirror2
+    depends_on:
+      - zookeeper_mirror
+    ports:
+      - "19096:19096"
+    environment:
+      KAFKA_BROKER_ID: 2
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2182
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka_mirror2:9095,EXTERNAL://localhost:19096
+      KAFKA_LISTENERS: INTERNAL://0.0.0.0:9095,EXTERNAL://0.0.0.0:19096
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+    networks:
+      kafka_net:
+        aliases:
+          - kafka_mirror2
+
+  kafka_mirror3:
+    image: confluentinc/cp-kafka:7.4.0
+    hostname: kafka_mirror3
+    container_name: kafka_mirror3
+    depends_on:
+      - zookeeper_mirror
+    ports:
+      - "19097:19097"
+    environment:
+      KAFKA_BROKER_ID: 3
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2182
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka_mirror3:9095,EXTERNAL://localhost:19097
+      KAFKA_LISTENERS: INTERNAL://0.0.0.0:9095,EXTERNAL://0.0.0.0:19097
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+    networks:
+      kafka_net:
+        aliases:
+          - kafka_mirror3
+
+  kafka_mirrormaker:
+    image: confluentinc/cp-kafka:7.4.0
+    hostname: kafka_mirrormaker
+    container_name: kafka_mirrormaker
+    command: >
+      bash -c "
+        sleep 60 &&
+        kafka-mirror-maker --consumer.config /opt/bitnami/kafka/config/consumer.config --producer.config /opt/bitnami/kafka/config/producer.config --whitelist='.*' --num.streams=1
+      "
+    depends_on:
+      - kafka1
+      - kafka2
+      - kafka3
+      - kafka_mirror1
+      - kafka_mirror2
+      - kafka_mirror3
+
+    restart: unless-stopped
+    volumes:
+      - ./mirror_configs:/opt/bitnami/kafka/config/
+    networks:
+      kafka_net:
+        aliases:
+          - kafka_mirrormaker
+
+  hadoop-namenode:
+   image: apache/hadoop:3.4.1
+   container_name: hadoop-namenode
+   hostname: hadoop-namenode
+   user: "root"
+   restart: always
+   platform: linux/amd64
+   deploy:
+     resources:
+       limits:
+         cpus: "1.0"   # Ограничение использования CPU
+         memory: "2g"  # Ограничение использования RAM
+   shm_size: 10G
+   ports:
+     - "9870:9870"  # HTTP-порт для Web UI HDFS NameNode
+     - "9000:9000"  # RPC порт для запросов к NameNode
+   volumes:
+     - ./hdfs_configs/core-site.xml:/opt/hadoop/etc/hadoop/core-site.xml
+     - ./hdfs_configs/hdfs-site-namenode.xml:/opt/hadoop/etc/hadoop/hdfs-site.xml
+     - ./hdfs_configs/scripts/namenode_entrypoint.sh:/namenode_entrypoint.sh
+   entrypoint: ["/bin/bash", "/namenode_entrypoint.sh"]
+   command: ["hdfs", "namenode"]
+
+  hadoop-datanode:
+   image: apache/hadoop:3.4.1
+   container_name: hadoop-datanode
+   hostname: hadoop-datanode
+   user: "root"
+   restart: always
+   platform: linux/amd64
+   deploy:
+     resources:
+       limits:
+         cpus: "1.0"   # Ограничение использования CPU
+         memory: "2g"  # Ограничение использования RAM
+   shm_size: 10G
+   depends_on:
+     - hadoop-namenode
+   ports:
+     - "9864:9864"  # HTTP-порт для Web UI DataNode №1
+     - "9970:9970"  # RPC порт для запросов от NameNode
+   volumes:
+     - ./hdfs_configs/core-site.xml:/opt/hadoop/etc/hadoop/core-site.xml
+     - ./hdfs_configs/hdfs-site-datanode.xml:/opt/hadoop/etc/hadoop/hdfs-site.xml
+     - ./hdfs_configs/scripts/datanode_entrypoint.sh:/datanode_entrypoint.sh
+   entrypoint: ["/bin/bash", "/datanode_entrypoint.sh"]
+   command: ["hdfs", "datanode"]
+
+  grafana:
+    image: "grafana/grafana:${GRAFANA_VERSION}"
+    restart: unless-stopped
+    ports:
+     - "3001:3000"
+    environment:
+      GF_PATHS_DATA : /var/lib/grafana
+      GF_SECURITY_ADMIN_PASSWORD : kafka
+    volumes:
+     - ./grafana/provisioning:/etc/grafana/provisioning
+     - ./grafana/dashboards:/var/lib/grafana/dashboards
+    container_name: grafana
+    depends_on:
+     - prometheus
+    networks:
+      kafka_net:
+        aliases:
+          - grafana
+
+  prometheus:
+    image: "prom/prometheus:${PROMETHEUS_VERSION}"
+    restart: unless-stopped
+    ports:
+     - "9090:9090"
+    volumes:
+     - ./etc/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+     - ./etc/prometheus/alert.rules:/etc/prometheus/alert.rules
+    command: "--config.file=/etc/prometheus/prometheus.yml"
+    container_name: prometheus
+    networks:
+      kafka_net:
+        aliases:
+          - prometheus
+
+  alertmanager:
+    image: prom/alertmanager:v0.21.0
+    restart: unless-stopped
+    container_name: alertmanager
+    volumes:
+      - ./etc/alertmanager/config.yml:/etc/alertmanager/config.yml
+    command:
+      - '--config.file=/etc/alertmanager/config.yml'
+      - '--storage.path=/alertmanager'
+      - '--log.level=debug'
+    ports:
+      - 9093:9093
+    networks:
+      kafka_net:
+        aliases:
+          - alertmanager
+
+  kafka-ui:
+    image: provectuslabs/kafka-ui:latest
+    container_name: kafka-ui
+    depends_on:
+      - kafka1
+      - kafka2
+      - kafka3
+    ports:
+      - "8080:8080"
+    environment:
+      KAFKA_CLUSTERS_0_NAME: local-kafka
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka1:9092,kafka2:9092,kafka3:9092
+      KAFKA_CLUSTERS_1_NAME: mirror-kafka
+      KAFKA_CLUSTERS_1_BOOTSTRAPSERVERS: kafka_mirror1:9095,kafka_mirror2:9095,kafka_mirror3:9095
+    networks:
+      kafka_net:
+        aliases:
+          - kafka-ui
+
+  postgres:
+    image: postgres:latest
+    container_name: postgres
+    restart: always
+    environment:
+      - POSTGRES_USER=${POSTGRES__USERNAME}
+      - POSTGRES_PASSWORD=${POSTGRES__PASSWORD}
+    ports:
+      - "${POSTGRES__PORT}:${POSTGRES__PORT}"
+    volumes:
+     - db:/var/lib/postgresql/data
+
+
+volumes:
+  db:
+    driver: local
+
+networks:
+  kafka_net:
+    driver: bridge
+    name: kafka_network

@@ -1,0 +1,105 @@
+[
+  {
+    "product_id": "12345",
+    "name": "Умные часы XYZ",
+    "description": "Умные часы с функцией мониторинга здоровья, GPS и уведомлениями.",
+    "price": {
+      "amount": 4999.99,
+      "currency": "RUB"
+    },
+    "category": "Электроника",
+    "brand": "XYZ",
+    "stock": {
+      "available": 150,
+      "reserved": 20
+    },
+    "sku": "XYZ-12345",
+    "tags": ["умные часы", "гаджеты", "технологии"],
+    "images": [
+      {
+        "url": "https://example.com/images/product1.jpg",
+        "alt": "Умные часы XYZ - вид спереди"
+      },
+      {
+        "url": "https://example.com/images/product1_side.jpg",
+        "alt": "Умные часы XYZ - вид сбоку"
+      }
+    ],
+    "specifications": {
+      "weight": "50g",
+      "dimensions": "42mm x 36mm x 10mm",
+      "battery_life": "24 hours",
+      "water_resistance": "IP68"
+    },
+    "created_at": "2023-10-01T12:00:00Z",
+    "updated_at": "2023-10-10T15:30:00Z",
+    "index": "products",
+    "store_id": "store_001"
+  },
+  {
+    "product_id": "67890",
+    "name": "Беспроводные наушники ABC",
+    "description": "Беспроводные наушники с шумоподавлением и длительным временем работы.",
+    "price": {
+      "amount": 2999.50,
+      "currency": "RUB"
+    },
+    "category": "Аудиотехника",
+    "brand": "ABC",
+    "stock": {
+      "available": 80,
+      "reserved": 10
+    },
+    "sku": "ABC-67890",
+    "tags": ["наушники", "аудио", "беспроводные"],
+    "images": [
+      {
+        "url": "https://example.com/images/product2.jpg",
+        "alt": "Беспроводные наушники ABC - вид спереди"
+      }
+    ],
+    "specifications": {
+      "weight": "200g",
+      "dimensions": "180mm x 170mm x 80mm",
+      "battery_life": "30 hours",
+      "water_resistance": "IPX4"
+    },
+    "created_at": "2023-11-05T09:00:00Z",
+    "updated_at": "2023-11-10T10:15:00Z",
+    "index": "products",
+    "store_id": "store_002"
+  },
+  {
+    "product_id": "54321",
+    "name": "Смартфон DEF Pro",
+    "description": "Смартфон с AMOLED-экраном, тройной камерой и быстрой зарядкой.",
+    "price": {
+      "amount": 25999.00,
+      "currency": "RUB"
+    },
+    "category": "Смартфоны",
+    "brand": "DEF",
+    "stock": {
+      "available": 60,
+      "reserved": 5
+    },
+    "sku": "DEF-54321",
+    "tags": ["смартфон", "мобильный", "технологии"],
+    "images": [
+      {
+        "url": "https://example.com/images/product3.jpg",
+        "alt": "Смартфон DEF Pro - вид спереди"
+      }
+    ],
+    "specifications": {
+      "weight": "180g",
+      "dimensions": "158mm x 74mm x 8mm",
+      "battery_life": "48 hours",
+      "water_resistance": "IP67"
+    },
+    "created_at": "2023-09-15T08:30:00Z",
+    "updated_at": "2023-09-20T14:00:00Z",
+    "index": "products",
+    "store_id": "store_003"
+  }
+]
